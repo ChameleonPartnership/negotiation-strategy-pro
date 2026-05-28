@@ -52,7 +52,7 @@ export const APPROACH_STATEMENTS = [
 
 export type ApproachAnswer = 'agree' | 'neither' | 'disagree'
 export type ApproachAnswers = Record<string, ApproachAnswer>
-export type ApproachResult = 'share' | 'create' | 'give' | 'take' | 'protect'
+export type ApproachResult = 'distribute' | 'generate' | 'sacrifice' | 'gain' | 'guard'
 
 export function calculateApproach(
   answers: ApproachAnswers,
@@ -69,22 +69,22 @@ export function calculateApproach(
   else if (counts.disagree === max) majority = 'disagree'
 
   if (orientationResult === 'cooperative') {
-    if (majority === 'agree') return 'share'
-    if (majority === 'neither') return 'create'
-    return 'give'
+    if (majority === 'agree') return 'distribute'
+    if (majority === 'neither') return 'generate'
+    return 'sacrifice'
   } else {
-    if (majority === 'agree') return 'take'
-    if (majority === 'neither') return 'protect'
-    return 'share'
+    if (majority === 'agree') return 'gain'
+    if (majority === 'neither') return 'guard'
+    return 'distribute'
   }
 }
 
 export const APPROACH_DESCRIPTIONS: Record<ApproachResult, string> = {
-  share: 'Seek incremental value opportunities — all gain',
-  create: 'Create value using power to demand cooperation',
-  give: 'Create perception of giving at minimum cost',
-  take: 'Assert demands and take value from the negotiation',
-  protect: 'Protect your interests whilst remaining competitive',
+  distribute: 'Seek incremental value opportunities — all gain',
+  generate: 'Generate value using power to demand cooperation',
+  sacrifice: 'Create perception of giving at minimum cost',
+  gain: 'Assert demands and gain value from the negotiation',
+  guard: 'Guard your interests whilst remaining competitive',
 }
 
 // ─────────────────────────────────────────────
@@ -184,13 +184,13 @@ export type StrategyAnswers = Record<string, StrategyAnswer>
 export type StrategyName =
   | 'Capitulate'
   | 'Compromise'
-  | 'Build'
-  | 'Grow'
-  | 'Hold'
-  | 'Position'
-  | 'Caution'
-  | 'Impose'
-  | 'Exit'
+  | 'Create'
+  | 'Develop'
+  | 'Defend'
+  | 'Prohibit'
+  | 'Control'
+  | 'Strike'
+  | 'Terminate'
 
 export const STRATEGY_QUESTIONS: Record<PowerStateName, string[]> = {
   recessive: [
@@ -252,13 +252,13 @@ export const STRATEGY_QUESTIONS: Record<PowerStateName, string[]> = {
 
 // Suggested strategy per power state (simplified — majority of agrees leads to primary, etc.)
 export const SUGGESTED_STRATEGIES: Record<PowerStateName, StrategyName[]> = {
-  recessive: ['Capitulate', 'Compromise', 'Build'],
-  passive: ['Build', 'Compromise', 'Hold'],
-  yielding: ['Grow', 'Build', 'Compromise'],
-  static: ['Hold', 'Position', 'Grow'],
-  assertive: ['Position', 'Caution', 'Hold'],
-  active: ['Impose', 'Caution', 'Position'],
-  dominant: ['Impose', 'Exit', 'Caution'],
+  recessive: ['Capitulate', 'Compromise', 'Create'],
+  passive: ['Create', 'Compromise', 'Defend'],
+  yielding: ['Develop', 'Create', 'Compromise'],
+  static: ['Defend', 'Prohibit', 'Develop'],
+  assertive: ['Prohibit', 'Control', 'Defend'],
+  active: ['Strike', 'Control', 'Prohibit'],
+  dominant: ['Strike', 'Terminate', 'Control'],
 }
 
 export function calculateStrategy(
@@ -280,25 +280,25 @@ export function calculateStrategy(
 export const ALL_STRATEGIES: StrategyName[] = [
   'Capitulate',
   'Compromise',
-  'Build',
-  'Grow',
-  'Hold',
-  'Position',
-  'Caution',
-  'Impose',
-  'Exit',
+  'Create',
+  'Develop',
+  'Defend',
+  'Prohibit',
+  'Control',
+  'Strike',
+  'Terminate',
 ]
 
 export const STRATEGY_DESCRIPTIONS: Record<StrategyName, string> = {
   Capitulate: 'Accept demands with minimum resistance to preserve critical relationship',
   Compromise: 'Find middle ground through mutual concession',
-  Build: 'Invest in the relationship and expand the value available',
-  Grow: 'Seek to expand the value available through creativity',
-  Hold: 'Maintain current position while exploring options',
-  Position: 'Assert your position and anchor the negotiation',
-  Caution: 'Exercise power carefully to avoid relationship damage',
-  Impose: 'Leverage your power advantage to drive your outcome',
-  Exit: 'Walk away or credibly threaten to do so',
+  Create: 'Invest in the relationship and expand the value available',
+  Develop: 'Seek to expand the value available through creativity',
+  Defend: 'Maintain current position while exploring options',
+  Prohibit: 'Assert your position and anchor the negotiation',
+  Control: 'Exercise power carefully to avoid relationship damage',
+  Strike: 'Leverage your power advantage to drive your outcome',
+  Terminate: 'Walk away or credibly threaten to do so',
 }
 
 // ─────────────────────────────────────────────
@@ -324,49 +324,49 @@ export const ACTION_PLANNER_GUIDANCE: Record<
     phase_4: 'Wait, receive and interpret response',
     phase_5: 'Acknowledge agreement, summarise and contract',
   },
-  Build: {
+  Create: {
     phase_1: 'Identify relationship investment opportunities and prepare value propositions',
     phase_2: 'Open with collaborative framing; express long-term commitment',
     phase_3: 'Present options that expand the value available to both parties',
     phase_4: 'Trade concessions conditionally; link short-term sacrifice to long-term gain',
     phase_5: 'Contract the agreement with clear ongoing commitments',
   },
-  Grow: {
+  Develop: {
     phase_1: 'Map the variables and creative trade-offs available before negotiating',
     phase_2: 'Open with an exploratory agenda; invite their perspective on value creation',
     phase_3: 'Propose innovative value-expanding packages',
     phase_4: 'Build agreement incrementally; test each element',
     phase_5: 'Confirm all elements and document the full value exchange',
   },
-  Hold: {
+  Defend: {
     phase_1: 'Clarify your walk-away position and define clear anchoring points',
     phase_2: 'Anchor firmly at the outset to shape expectations',
     phase_3: 'Deflect pressure; restate position without conceding',
     phase_4: 'Make only conditional, high-value trades',
     phase_5: 'Close on your terms or agree to disagree temporarily',
   },
-  Position: {
+  Prohibit: {
     phase_1: 'Prepare a strong opening position with clear rationale and evidence',
     phase_2: 'Assert your opening position confidently; use data to justify',
     phase_3: 'Make limited, visible concessions to create movement perception',
     phase_4: 'Maintain momentum toward your target; use silence effectively',
     phase_5: 'Close firmly; reinforce the deal logic from your position',
   },
-  Caution: {
+  Control: {
     phase_1: 'Assess what power is available and what the consequences of using it are',
     phase_2: 'Open assertively but preserve the relationship',
     phase_3: 'Signal power indirectly; use questions to expose their vulnerabilities',
     phase_4: 'Apply pressure selectively; avoid irreversible moves',
     phase_5: 'Close in a way that leaves the relationship intact for future use',
   },
-  Impose: {
+  Strike: {
     phase_1: 'Prepare clear demands with credible consequences for non-compliance',
     phase_2: 'Assert your terms without apology or excessive justification',
     phase_3: 'Present non-negotiable elements clearly; offer limited choice on peripherals',
     phase_4: 'Apply direct pressure; use deadlines and consequences',
     phase_5: 'Close on your terms; document clearly and follow through',
   },
-  Exit: {
+  Terminate: {
     phase_1: 'Identify and activate your best alternative; make it visible if appropriate',
     phase_2: 'Signal willingness to walk away; frame their BATNA as inferior',
     phase_3: 'Present final terms; set a clear deadline',

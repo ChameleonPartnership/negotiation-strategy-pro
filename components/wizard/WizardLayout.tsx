@@ -57,7 +57,7 @@ export function WizardLayout({
 
       <div className="flex flex-1">
         {/* Sidebar step navigator */}
-        <aside className="hidden lg:flex w-56 flex-col border-r border-white/10 bg-black/10 pt-6 pb-8 sticky top-14 h-[calc(100vh-3.5rem)]">
+        <aside className="hidden lg:flex w-56 flex-col border-r border-white/10 pt-6 pb-8 sticky top-14 h-[calc(100vh-3.5rem)]" style={{ background: 'var(--cp-navy)' }}>
           <nav className="px-3 space-y-0.5">
             {WIZARD_STEPS.map((step) => {
               const isCompleted = completedSteps.includes(step.step)
@@ -71,9 +71,9 @@ export function WizardLayout({
                   className={cn(
                     'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all',
                     isCurrent
-                      ? 'bg-teal-500/20 text-teal-300 font-medium border border-teal-500/30'
+                      ? 'font-medium border hover:bg-white/5'
                       : isCompleted
-                      ? 'text-teal-400/80 hover:bg-white/5'
+                      ? 'hover:bg-white/5'
                       : isAccessible
                       ? 'text-white/60 hover:text-white/80 hover:bg-white/5'
                       : 'text-white/30 cursor-not-allowed'
@@ -81,10 +81,10 @@ export function WizardLayout({
                   onClick={!isAccessible ? (e) => e.preventDefault() : undefined}
                 >
                   {isCompleted ? (
-                    <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--cp-ice)' }} />
                   ) : isCurrent ? (
-                    <div className="w-4 h-4 rounded-full border-2 border-teal-400 flex-shrink-0 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                    <div className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center" style={{ borderColor: 'var(--cp-ice)' }}>
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--cp-ice)' }} />
                     </div>
                   ) : (
                     <Circle className="w-4 h-4 text-white/30 flex-shrink-0" />
@@ -135,7 +135,7 @@ export function WizardPage({
       {/* Page header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs font-medium text-teal-400 uppercase tracking-wider">
+          <span className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--cp-ice)' }}>
             Step {step} of {totalSteps}
           </span>
         </div>

@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { useAutoSave } from '@/hooks/useAutoSave'
-import { Loader2, ChevronRight, ChevronLeft } from 'lucide-react'
+import { Loader2, ChevronRight, ChevronLeft, ExternalLink } from 'lucide-react'
+import { getNNPLink } from '@/app/actions/nnp-sso'
 
 interface FormState {
   internal_stakeholders: string
@@ -21,10 +22,44 @@ interface FormState {
   main_issues: string
 }
 
+// NNP SSO button component
+function NNPButton({ userEmail }: { userEmail: string }) {
+  const [loading, setLoading] = useState(false)
+
+  async function handleClick() {
+    if (!userEmail) {
+      window.open('https://www.negotiation-navigator.pro', '_blank')
+      return
+    }
+    setLoading(true)
+    try {
+      const { url } = await getNNPLink(userEmail)
+      window.open(url, '_blank')
+    } catch {
+      window.open('https://www.negotiation-navigator.pro', '_blank')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border transition-all hover:opacity-80 disabled:opacity-50"
+      style={{ borderColor: 'var(--cp-teal)', color: 'var(--cp-ice)', background: 'rgba(3,83,106,0.2)' }}
+    >
+      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-3 h-3" />}
+      Open in Negotiation Navigator Pro →
+    </button>
+  )
+}
+
 export default function ScopingPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [id, setId] = useState('')
   const [projectName, setProjectName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [scopingId, setScopingId] = useState<string | null>(null)
@@ -48,6 +83,7 @@ export default function ScopingPage({ params }: { params: Promise<{ id: string }
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/auth/login'); return }
+    if (user.email) setUserEmail(user.email)
 
     const [{ data: project }, { data: scoping }] = await Promise.all([
       supabase.from('strategy_projects').select('name').eq('id', pid).single(),
@@ -179,7 +215,10 @@ export default function ScopingPage({ params }: { params: Promise<{ id: string }
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className="text-white/70">Main Issues / Variables</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label className="text-white/70">Main Issues / Variables</Label>
+                <NNPButton userEmail={userEmail} />
+              </div>
               <Textarea
                 value={form.main_issues}
                 onChange={(e) => update('main_issues', e.target.value)}

@@ -132,55 +132,32 @@ export default function PowerPage({ params }: { params: Promise<{ id: string }> 
         {answeredCount > 0 && (
           <div className="nsp-card rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-white/60 text-sm">Total Score</span>
-              <span className="text-3xl font-bold text-white">{totalScore}</span>
+              <span className="text-white/60 text-sm">Your Power Position</span>
+              <span className="text-3xl font-bold" style={{ color: result?.colour || 'var(--cp-ice)' }}>
+                {Math.round(totalScore)}%
+              </span>
             </div>
-            {/* Range bar */}
-            <div className="relative h-6 rounded-full overflow-hidden flex">
-              {POWER_STATE_RANGES.map((range) => (
-                <div
-                  key={range.state}
-                  style={{
-                    width: `${((range.max - range.min + 1) / 101) * 100}%`,
-                    background: range.state === result?.powerState
-                      ? result.colour
-                      : 'rgba(255,255,255,0.08)',
-                  }}
-                  className="h-full flex items-center justify-center transition-all"
-                  title={`${range.label}: ${range.min}–${range.max}`}
-                />
-              ))}
-              {/* Score marker */}
+            {/* Progress bar */}
+            <div className="relative h-3 rounded-full overflow-hidden bg-white/10">
               <div
-                className="absolute top-0 w-1 h-full bg-white rounded-full shadow-lg transition-all duration-300"
-                style={{ left: `${(totalScore / 100) * 100}%` }}
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${totalScore}%`,
+                  background: result?.colour || 'var(--cp-teal)',
+                }}
               />
             </div>
-            {/* Labels */}
-            <div className="flex justify-between mt-1">
-              {POWER_STATE_RANGES.map((range) => (
-                <span
-                  key={range.state}
-                  className="text-[10px] text-white/30 text-center"
-                  style={{ width: `${((range.max - range.min + 1) / 101) * 100}%` }}
-                >
-                  {range.label}
-                </span>
-              ))}
+            <div className="flex justify-between mt-1 text-xs text-white/30">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
             </div>
 
             {result && (
-              <div
-                className="mt-4 rounded-lg p-4 border"
-                style={{
-                  background: `${result.colour}15`,
-                  borderColor: `${result.colour}40`,
-                }}
-              >
-                <div className="font-bold text-lg capitalize" style={{ color: result.colour }}>
-                  {result.powerState}
+              <div className="mt-4 rounded-lg p-4 border" style={{ borderColor: `${result.colour}40`, background: `${result.colour}15` }}>
+                <div className="text-white/80 text-sm">
+                  Your power position is <span className="font-bold" style={{ color: result.colour }}>{Math.round(totalScore)}%</span> — higher scores indicate stronger negotiating leverage.
                 </div>
-                <div className="text-white/60 text-sm mt-0.5">{result.description}</div>
               </div>
             )}
           </div>

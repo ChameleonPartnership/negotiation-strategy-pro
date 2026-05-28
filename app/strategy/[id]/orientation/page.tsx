@@ -79,8 +79,8 @@ export default function OrientationPage({ params }: { params: Promise<{ id: stri
   return (
     <WizardLayout projectId={id} projectName={projectName} currentStep={3} completedSteps={[1, 2]}>
       <WizardPage
-        title="Orientation Assessment"
-        description="Answer Yes or No to each statement. Yes → Cooperative; No → Competitive."
+        title="Negotiation Approach"
+        description="Answer Yes or No to each statement. Yes → Mutual Value Gain; No → Positional Bargaining."
         step={3}
         actions={
           <>
@@ -100,10 +100,10 @@ export default function OrientationPage({ params }: { params: Promise<{ id: stri
         <div className="nsp-card rounded-xl overflow-hidden">
           <div className="grid grid-cols-[1fr_80px_80px] gap-0 border-b border-white/10">
             <div className="px-5 py-3 text-white/50 text-xs uppercase tracking-wider">Statement</div>
-            <div className="px-3 py-3 text-center text-teal-400 text-xs uppercase tracking-wider flex items-center justify-center gap-1">
+            <div className="px-3 py-3 text-center text-xs uppercase tracking-wider flex items-center justify-center gap-1" style={{ color: 'var(--cp-ice)' }}>
               <Users className="w-3 h-3" /> Yes
             </div>
-            <div className="px-3 py-3 text-center text-orange-400 text-xs uppercase tracking-wider flex items-center justify-center gap-1">
+            <div className="px-3 py-3 text-center text-xs uppercase tracking-wider flex items-center justify-center gap-1" style={{ color: 'var(--cp-orange)' }}>
               <Swords className="w-3 h-3" /> No
             </div>
           </div>
@@ -122,9 +122,10 @@ export default function OrientationPage({ params }: { params: Promise<{ id: stri
                     onClick={() => setAnswer(key, 'yes')}
                     className={`w-8 h-8 rounded-full border-2 transition-all text-xs font-bold ${
                       val === 'yes'
-                        ? 'bg-teal-500 border-teal-500 text-white'
+                        ? 'text-white'
                         : 'border-white/20 text-white/30 hover:border-teal-500/50 hover:text-teal-400/70'
                     }`}
+                    style={val === 'yes' ? { background: 'var(--cp-teal)', borderColor: 'var(--cp-teal)' } : {}}
                   >
                     Y
                   </button>
@@ -134,9 +135,10 @@ export default function OrientationPage({ params }: { params: Promise<{ id: stri
                     onClick={() => setAnswer(key, 'no')}
                     className={`w-8 h-8 rounded-full border-2 transition-all text-xs font-bold ${
                       val === 'no'
-                        ? 'bg-orange-500 border-orange-500 text-white'
+                        ? 'text-white'
                         : 'border-white/20 text-white/30 hover:border-orange-500/50 hover:text-orange-400/70'
                     }`}
+                    style={val === 'no' ? { background: 'var(--cp-orange)', borderColor: 'var(--cp-orange)' } : {}}
                   >
                     N
                   </button>
@@ -162,12 +164,12 @@ export default function OrientationPage({ params }: { params: Promise<{ id: stri
                 <Swords className="w-6 h-6 text-orange-400" />
               )}
               <div>
-                <div className={`font-bold text-lg capitalize ${result.result === 'cooperative' ? 'text-teal-300' : 'text-orange-300'}`}>
-                  {result.result} Orientation
-                </div>
+                <div className={`font-bold text-lg ${result.result === 'cooperative' ? '' : 'text-orange-300'}`}
+                    style={result.result === 'cooperative' ? { color: 'var(--cp-ice)' } : {}}>
+                    {result.result === 'cooperative' ? 'Mutual Value Gain' : 'Positional Bargaining'}
+                  </div>
                 <div className="text-white/60 text-sm">
-                  {result.yesCount} Yes ({result.result === 'cooperative' ? 'Cooperative' : 'Competitive'}) ·{' '}
-                  {result.noCount} No
+                  {result.yesCount} Yes · {result.noCount} No
                 </div>
               </div>
             </div>

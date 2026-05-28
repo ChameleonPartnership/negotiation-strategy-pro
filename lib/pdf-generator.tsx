@@ -14,13 +14,13 @@ import {
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',
-    backgroundColor: '#0f1629',
-    color: '#f1f5f9',
+    backgroundColor: '#012A36',
+    color: '#F7FAFC',
     paddingTop: 0,
     paddingBottom: 0,
   },
   coverPage: {
-    backgroundColor: '#0f1629',
+    backgroundColor: '#012A36',
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   coverAccent: {
     width: 60,
     height: 4,
-    backgroundColor: '#0d9488',
+    backgroundColor: '#03536A',
     marginBottom: 30,
     borderRadius: 2,
   },
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   coverSubtitle: {
     fontSize: 13,
-    color: '#0d9488',
+    color: '#81E6D9',
     textAlign: 'center',
     letterSpacing: 3,
     textTransform: 'uppercase',
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     color: '#f1f5f9',
     textAlign: 'center',
     marginBottom: 8,
-    backgroundColor: 'rgba(13,148,136,0.15)',
+    backgroundColor: 'rgba(3,83,106,0.25)',
     padding: '10 20',
     borderRadius: 6,
   },
@@ -73,18 +73,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   contentPage: {
-    backgroundColor: '#0f1629',
+    backgroundColor: '#012A36',
     padding: '40 50',
     flex: 1,
   },
   sectionTitle: {
     fontSize: 14,
     fontFamily: 'Helvetica-Bold',
-    color: '#0d9488',
+    color: '#81E6D9',
     marginBottom: 12,
     paddingBottom: 6,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e2d45',
+    borderBottomColor: '#03536A',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
@@ -122,22 +122,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    backgroundColor: '#1a2540',
+    backgroundColor: 'rgba(3,83,106,0.2)',
     borderRadius: 8,
     padding: 14,
     marginBottom: 10,
     borderLeftWidth: 3,
-    borderLeftColor: '#0d9488',
+    borderLeftColor: '#03536A',
   },
   badge: {
-    backgroundColor: 'rgba(13,148,136,0.2)',
+    backgroundColor: 'rgba(3,83,106,0.3)',
     borderRadius: 4,
     padding: '4 10',
     alignSelf: 'flex-start',
   },
   badgeText: {
     fontSize: 11,
-    color: '#0d9488',
+    color: '#81E6D9',
     fontFamily: 'Helvetica-Bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#1e2d45',
+    backgroundColor: '#03536A',
     marginVertical: 12,
   },
 })
@@ -235,7 +235,7 @@ export function NegotiationStrategyDocument({ data }: { data: Record<string, any
           {powerState.power_state && (
             <View style={{ marginTop: 30, alignItems: 'center' }}>
               <Text style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Strategy Selected</Text>
-              <View style={[styles.badge, { backgroundColor: 'rgba(13,148,136,0.3)' }]}>
+              <View style={[styles.badge, { backgroundColor: 'rgba(3,83,106,0.3)' }]}>
                 <Text style={[styles.badgeText, { fontSize: 14 }]}>{strategy.final_strategy || '—'}</Text>
               </View>
             </View>
@@ -296,20 +296,26 @@ export function NegotiationStrategyDocument({ data }: { data: Record<string, any
       {/* ORIENTATION + APPROACH */}
       <Page size="A4" style={styles.page}>
         <View style={[styles.contentPage, { paddingBottom: 60 }]}>
-          <Text style={styles.sectionTitle}>3. Orientation</Text>
+          <Text style={styles.sectionTitle}>3. Negotiation Approach</Text>
           <View style={styles.card}>
-            <Text style={styles.resultBig}>{orientation.result ? orientation.result.charAt(0).toUpperCase() + orientation.result.slice(1) : '—'}</Text>
+            <Text style={styles.resultBig}>
+              {orientation.result === 'cooperative'
+                ? 'Mutual Value Gain'
+                : orientation.result === 'competitive'
+                ? 'Positional Bargaining'
+                : '—'}
+            </Text>
             <Text style={styles.bodyText}>
               {orientation.result === 'cooperative'
-                ? 'Your orientation is cooperative — seek mutual gain and work with the other party.'
+                ? 'Your approach is Mutual Value Gain — seek mutual gain and work with the other party.'
                 : orientation.result === 'competitive'
-                ? 'Your orientation is competitive — focus on your position and protect your interests.'
-                : 'Orientation not yet assessed.'}
+                ? 'Your approach is Positional Bargaining — focus on your position and protect your interests.'
+                : 'Approach not yet assessed.'}
             </Text>
           </View>
 
           <View style={styles.divider} />
-          <Text style={styles.sectionTitle}>4. Approach</Text>
+          <Text style={styles.sectionTitle}>4. Approach to Value</Text>
           <View style={styles.card}>
             <Text style={styles.resultBig}>{approach.result ? approach.result.charAt(0).toUpperCase() + approach.result.slice(1) : '—'}</Text>
             {approach.override && <Text style={{ fontSize: 9, color: '#64748b', marginTop: 2 }}>Override applied: {approach.override}</Text>}
@@ -318,8 +324,8 @@ export function NegotiationStrategyDocument({ data }: { data: Record<string, any
           <View style={styles.divider} />
           <Text style={styles.sectionTitle}>5. Power State</Text>
           <View style={styles.card}>
-            <Text style={styles.resultBig}>{powerState.power_state ? powerState.power_state.charAt(0).toUpperCase() + powerState.power_state.slice(1) : '—'}</Text>
-            <Text style={styles.bodyText}>Total Score: {powerState.total_score ?? '—'} / 100</Text>
+            <Text style={styles.resultBig}>{powerState.total_score != null ? `${Math.round(powerState.total_score)}%` : '—'}</Text>
+            <Text style={styles.bodyText}>Power position: {powerState.total_score ?? '—'}% — higher scores indicate stronger negotiating leverage.</Text>
           </View>
 
           <View style={styles.divider} />
@@ -344,7 +350,7 @@ export function NegotiationStrategyDocument({ data }: { data: Record<string, any
               <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#fff', marginBottom: 4 }}>
                 Scenario {i + 1}: {(s.name as string) || `Scenario ${i + 1}`}
               </Text>
-              <Text style={{ fontSize: 9, color: '#0d9488', marginBottom: 4 }}>Strategy: {(s.strategy as string) || '—'}</Text>
+              <Text style={{ fontSize: 9, color: '#81E6D9', marginBottom: 4 }}>Strategy: {(s.strategy as string) || '—'}</Text>
               {s.trigger_a && <Text style={styles.bodyText}>Trigger A: {s.trigger_a as string}</Text>}
               {s.trigger_b && <Text style={styles.bodyText}>Trigger B: {s.trigger_b as string}</Text>}
               {s.trigger_c && <Text style={styles.bodyText}>Trigger C: {s.trigger_c as string}</Text>}

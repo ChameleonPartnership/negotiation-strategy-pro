@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, CheckCircle, Target, BarChart3, FileText, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -29,8 +30,8 @@ export default function LandingPage() {
   const steps = [
     'Project Setup',
     'Initial Scoping',
-    'Orientation Assessment',
-    'Approach Determination',
+    'Negotiation Approach',
+    'Approach to Value',
     'Power State Analysis',
     'Strategy Selection',
     'Phase Planning',
@@ -40,16 +41,25 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--brand-navy)' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--cp-navy)' }}>
       {/* Nav */}
-      <nav className="border-b border-white/10 backdrop-blur-sm bg-black/20">
+      <nav className="border-b border-white/10 backdrop-blur-sm" style={{ background: 'var(--cp-navy)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div>
-            <div className="text-white font-bold text-lg tracking-tight">
-              Negotiation Strategy Pro
-            </div>
-            <div className="text-teal-400 text-xs tracking-widest uppercase">
-              Chameleon Partnership
+          <div className="flex items-center gap-3">
+            <Image
+              src="/CP-Logo-Large-White.png"
+              alt="Chameleon Partnership"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+            <div>
+              <div className="text-white font-bold text-lg tracking-tight">
+                Negotiation Strategy Pro
+              </div>
+              <div className="text-xs tracking-widest uppercase" style={{ color: 'var(--cp-ice)' }}>
+                Chameleon Partnership
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -95,7 +105,8 @@ export default function LandingPage() {
             <Link href="/auth/signup">
               <Button
                 size="lg"
-                className="bg-teal-600 hover:bg-teal-500 text-white px-8 py-3 text-base"
+                className="text-white px-8 py-3 text-base"
+                style={{ background: 'var(--cp-teal)' }}
               >
                 Start Your Strategy <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -107,7 +118,8 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/20 text-white/80 hover:bg-white/10 px-8 py-3 text-base"
+                className="border-white/20 hover:bg-white/10 px-8 py-3 text-base"
+                style={{ color: 'var(--cp-ice)' }}
               >
                 Tactical Tool →
               </Button>
@@ -128,8 +140,8 @@ export default function LandingPage() {
                 key={f.title}
                 className="nsp-card rounded-xl p-6"
               >
-                <div className="w-10 h-10 rounded-lg bg-teal-500/20 flex items-center justify-center mb-4">
-                  <f.icon className="w-5 h-5 text-teal-400" />
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ background: 'rgba(129,230,217,0.15)' }}>
+                  <f.icon className="w-5 h-5" style={{ color: 'var(--cp-ice)' }} />
                 </div>
                 <h3 className="text-white font-semibold mb-2">{f.title}</h3>
                 <p className="text-white/50 text-sm leading-relaxed">{f.desc}</p>
@@ -148,8 +160,8 @@ export default function LandingPage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {steps.map((step, i) => (
               <div key={step} className="flex items-center gap-3 nsp-card rounded-lg px-4 py-3">
-                <span className="text-teal-400 font-bold text-sm w-6">{i + 1}</span>
-                <CheckCircle className="w-4 h-4 text-teal-500/60" />
+                <span className="font-bold text-sm w-6" style={{ color: 'var(--cp-ice)' }}>{i + 1}</span>
+                <CheckCircle className="w-4 h-4" style={{ color: 'var(--cp-teal)', opacity: 0.7 }} />
                 <span className="text-white/80 text-sm">{step}</span>
               </div>
             ))}

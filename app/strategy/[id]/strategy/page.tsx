@@ -97,7 +97,7 @@ export default function StrategyPage({ params }: { params: Promise<{ id: string 
     <WizardLayout projectId={id} projectName={projectName} currentStep={6} completedSteps={[1,2,3,4,5]}>
       <WizardPage
         title="Strategy Selection"
-        description={`Based on your ${powerState} power state, rate each statement below.`}
+        description={`Based on your power position, rate each statement below.`}
         step={6}
         actions={
           <>

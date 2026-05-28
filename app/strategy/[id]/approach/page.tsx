@@ -99,8 +99,8 @@ export default function ApproachPage({ params }: { params: Promise<{ id: string 
   return (
     <WizardLayout projectId={id} projectName={projectName} currentStep={4} completedSteps={[1,2,3]}>
       <WizardPage
-        title="Approach Determination"
-        description={`Based on your ${orientation} orientation, rate each statement below.`}
+        title="Approach to Value"
+        description={`Based on your ${orientation === 'cooperative' ? 'Mutual Value Gain' : 'Positional Bargaining'} approach, rate each statement below.`}
         step={4}
         actions={
           <>
@@ -171,7 +171,7 @@ export default function ApproachPage({ params }: { params: Promise<{ id: string 
             >
               Auto
             </button>
-            {(['share', 'create', 'give', 'take', 'protect'] as ApproachResult[]).map((opt) => (
+            {(['distribute', 'generate', 'sacrifice', 'gain', 'guard'] as ApproachResult[]).map((opt) => (
               <button
                 key={opt}
                 onClick={() => { setOverride(opt); doSave() }}
