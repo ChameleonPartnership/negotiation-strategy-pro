@@ -14,6 +14,7 @@ import {
   ACTION_PLANNER_GUIDANCE,
   SCENARIO_PHASE_NAMES,
   SCENARIO_LABELS,
+  ALL_STRATEGIES,
   getScenarioStrategies,
   type StrategyName,
 } from '@/lib/decision-tree'
@@ -49,6 +50,8 @@ export default function ScenariosPage({ params }: { params: Promise<{ id: string
     C: { phaseNotes: {} },
     D: { phaseNotes: {} },
   })
+  // B/C/D strategies can be overridden; A is always the chosen strategy from Step 6
+  const [scenarioStrategyOverrides, setScenarioStrategyOverrides] = useState<Partial<Record<ScenarioKey, StrategyName>>>({})
 
   useEffect(() => {
     params.then(({ id: pid }) => {
@@ -134,7 +137,13 @@ export default function ScenariosPage({ params }: { params: Promise<{ id: string
     setSaving(true)
     const supabase = createClient()
     const [stratA, stratB, stratC, stratD] = getScenarioStrategies(finalStrategy)
-    const strategies: Record<ScenarioKey, StrategyName> = { A: stratA, B: stratB, C: stratC, D: stratD }
+    const autoS: Record<ScenarioKey, StrategyName> = { A: stratA, B: stratB, C: stratC, D: stratD }
+    const strategies: Record<ScenarioKey, StrategyName> = {
+      A: autoS.A,
+      B: scenarioStrategyOverrides.B ?? autoS.B,
+      C: scenarioStrategyOverrides.C ?? autoS.C,
+      D: scenarioStrategyOverrides.D ?? autoS.D,
+    }
 
     for (const key of SCENARIO_KEYS) {
       const data = phaseData[key]
@@ -191,7 +200,35 @@ export default function ScenariosPage({ params }: { params: Promise<{ id: string
     )
 
   const [stratA, stratB, stratC, stratD] = getScenarioStrategies(finalStrategy)
-  const strategies: Record<ScenarioKey, StrategyName> = { A: stratA, B: stratB, C: stratC, D: stratD }
+  const autoStrategies: Record<ScenarioKey, StrategyName> = { A: stratA, B: stratB, C: stratC, D: stratD }
+  const strategies: Record<ScenarioKey, StrategyName> = {
+    A: autoStrategies.A,
+    B: scenarioStrategyOverrides.B ?? autoStrategies.B,
+    C: scenarioStrategyOverrides.C ?? autoStrategies.C,
+    D: scenarioStrategyOverrides.D ?? autoStrategies.D,
+  }
+
+  function overrideScenarioStrategy(key: ScenarioKey, strat: StrategyName) {
+    if (key === 'A') return
+    setScenarioStrategyOverrides((prev) => ({ ...prev, [key]: strat }))
+    // Pre-populate phase notes with new guidance only if phases are still empty
+    const guidance = ACTION_PLANNER_GUIDANCE[strat]
+    if (guidance) {
+      setPhaseData((prev) => ({
+        ...prev,
+        [key]: {
+          ...prev[key],
+          phaseNotes: {
+            phase_1: prev[key].phaseNotes.phase_1 || guidance.phase_1,
+            phase_2: prev[key].phaseNotes.phase_2 || guidance.phase_2,
+            phase_3: prev[key].phaseNotes.phase_3 || guidance.phase_3,
+            phase_4: prev[key].phaseNotes.phase_4 || guidance.phase_4,
+            phase_5: prev[key].phaseNotes.phase_5 || guidance.phase_5,
+          },
+        },
+      }))
+    }
+  }
 
   return (
     <WizardLayout projectId={id} projectName={projectName} currentStep={7} completedSteps={[1, 2, 3, 4, 5, 6]}>
@@ -301,6 +338,45 @@ export default function ScenariosPage({ params }: { params: Promise<{ id: string
                 </div>
 
                 {/* Phase grid */}
+                {/* Strategy selector — locked for A, dropdown for B/C/D */}
+                {key !== 'A' ? (
+                  <div
+                    className="flex items-center gap-3 rounded-xl px-4 py-3"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+                  >
+                    <span className="text-white/50 text-sm flex-shrink-0">Strategy:</span>
+                    <select
+                      value={strategies[key]}
+                      onChange={(e) => overrideScenarioStrategy(key, e.target.value as StrategyName)}
+                      className="flex-1 text-white text-sm outline-none cursor-pointer rounded px-2 py-1"
+                      style={{ background: 'rgba(3,83,106,0.4)', border: '1px solid rgba(129,230,217,0.2)' }}
+                    >
+                      {ALL_STRATEGIES.map((s) => (
+                        <option key={s} value={s} style={{ background: '#012A36', color: '#F7FAFC' }}>
+                          {s}{s === autoStrategies[key] ? ' ✓ recommended' : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {scenarioStrategyOverrides[key] && scenarioStrategyOverrides[key] !== autoStrategies[key] && (
+                      <button
+                        onClick={() => setScenarioStrategyOverrides((p) => { const n = { ...p }; delete n[key]; return n })}
+                        className="text-xs flex-shrink-0 px-2 py-1 rounded"
+                        style={{ color: 'var(--cp-orange)', border: '1px solid rgba(239,65,54,0.3)' }}
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    className="flex items-center gap-2 rounded-xl px-4 py-3"
+                    style={{ background: 'rgba(3,83,106,0.15)', border: '1px solid rgba(129,230,217,0.15)' }}
+                  >
+                    <span className="text-white/40 text-sm">Strategy locked to Step 6 selection:</span>
+                    <span className="text-white font-semibold text-sm" style={{ color: col.text }}>{strategies.A}</span>
+                  </div>
+                )}
+
                 <div className="nsp-card rounded-xl p-5">
                   <div className="text-white/60 text-sm font-medium mb-4">Phase Planning</div>
                   <div className="grid sm:grid-cols-5 gap-3">

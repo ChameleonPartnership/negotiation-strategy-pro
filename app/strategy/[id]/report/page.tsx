@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { APPROACH_DESCRIPTIONS, STRATEGY_DESCRIPTIONS, POWER_STATE_RANGES } from '@/lib/decision-tree'
 import {
   FileText, Download, ChevronLeft, CheckCircle,
-  Users, Swords, BarChart3, Target, Zap
+  Users, Swords, BarChart3, Target, Zap, AlertTriangle, ArrowDown
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -38,6 +38,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       { data: strategy },
       { data: scenarios },
       { data: triggers },
+      { data: ppaRows },
     ] = await Promise.all([
       supabase.from('strategy_projects').select('*').eq('id', pid).single(),
       supabase.from('scoping').select('*').eq('project_id', pid).maybeSingle(),
@@ -47,6 +48,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       supabase.from('strategy_selection').select('*').eq('project_id', pid).maybeSingle(),
       supabase.from('scenarios').select('*').eq('project_id', pid).order('scenario_number'),
       supabase.from('triggers').select('*').eq('project_id', pid).maybeSingle(),
+      supabase.from('ppa').select('*').eq('project_id', pid),
     ])
 
     if (!project) { router.push('/dashboard'); return }
@@ -59,7 +61,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       })
     )
 
-    setData({ project, scoping, orientation, approach, powerState, strategy, scenarios: enrichedScenarios, triggers })
+    setData({ project, scoping, orientation, approach, powerState, strategy, scenarios: enrichedScenarios, triggers, ppa: ppaRows || [] })
     setLoading(false)
   }
 
@@ -103,6 +105,8 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   const scenarios = data.scenarios as any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const triggers = data.triggers as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ppa = (data.ppa as any[]) || []
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const scoping = data.scoping as any
 
@@ -267,37 +271,135 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </ReportSection>
         )}
 
+        {/* PPA */}
+        {ppa.length > 0 && (
+          <ReportSection title="Potential Problem Analysis">
+            <div className="space-y-3">
+              {['A', 'B', 'C', 'D'].map((variant) => {
+                const rows = ppa.filter((r) => r.variant === variant || r.scenario_variant === variant)
+                if (!rows.length) return null
+                const col = variant === 'A' ? '#81E6D9' : variant === 'B' ? '#EF4136' : variant === 'C' ? '#D4AF37' : '#94a3b8'
+                return (
+                  <div key={variant} className="nsp-card rounded-xl overflow-hidden">
+                    <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider" style={{ color: col, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                      Scenario {variant}
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="text-white/30 text-xs">
+                            <th className="px-4 py-2 text-left">Problem / Tactic</th>
+                            <th className="px-3 py-2 text-center">Prob.</th>
+                            <th className="px-3 py-2 text-center">Serious.</th>
+                            <th className="px-4 py-2 text-left">Preventative</th>
+                            <th className="px-4 py-2 text-left">Contingency</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rows.map((row, i) => {
+                            const riskColor = (row.probability === 'High' || row.seriousness === 'High') ? '#ef4444'
+                              : (row.probability === 'Medium' && row.seriousness === 'Medium') ? '#eab308'
+                              : '#22c55e'
+                            return (
+                              <tr key={i} className="border-t border-white/5">
+                                <td className="px-4 py-2 text-white/80">{row.tactic}</td>
+                                <td className="px-3 py-2 text-center">
+                                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `${riskColor}22`, color: riskColor }}>{row.probability}</span>
+                                </td>
+                                <td className="px-3 py-2 text-center">
+                                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `${riskColor}22`, color: riskColor }}>{row.seriousness}</span>
+                                </td>
+                                <td className="px-4 py-2 text-white/60 text-xs">{row.preventative_action}</td>
+                                <td className="px-4 py-2 text-white/60 text-xs">{row.contingency_action}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </ReportSection>
+        )}
+
         {/* Triggers */}
-        {triggers && triggers.trigger_data && (
-          <ReportSection title="Contingency Triggers">
-            <div className="space-y-2">
-              {Object.entries(triggers.trigger_data as Record<string, unknown>)
-                .filter(([, v]) => (v as Record<string, unknown>).active)
-                .map(([k, v]) => {
-                  const entry = v as { active: boolean; notes?: string }
-                  const idx = parseInt(k.replace('t', '')) - 1
-                  const texts = [
-                    'They are using delaying tactics',
-                    'Discussions been escalated to a higher level',
-                    'They have dis-empowered themselves',
-                    'They have presented no alternatives',
-                    'They have only presented win/lose proposals',
-                    'They have introduced time related deadlines',
-                    'They have formally withdrawn from discussions',
-                    'They have rejected any attempt to create ongoing dialogue',
-                    'They are demonstrating indifference/intransigence',
-                    'They have introduced threats or deadlines',
-                  ]
+        {triggers && (triggers.trigger_data || triggers.a_to_b || triggers.b_to_c || triggers.c_to_d) && (
+          <ReportSection title="Triggers & Escalation Plan">
+            <div className="space-y-3">
+              {/* Scenario cascade visual */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {['A','B','C','D'].map((s, i) => {
+                  const cols = ['#81E6D9','#EF4136','#D4AF37','#94a3b8']
+                  const scenarioNames = (scenarios || []).find((sc) => sc.scenario_number === i+1)
                   return (
-                    <div key={k} className="flex items-start gap-3 nsp-card rounded-lg px-4 py-3">
-                      <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <div className="text-white/80 text-sm">{texts[idx]}</div>
-                        {entry.notes && <div className="text-white/40 text-xs mt-1">{entry.notes}</div>}
+                    <div key={s} className="text-center relative">
+                      {i > 0 && (
+                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 z-10">
+                          <ArrowDown className="w-3 h-3" style={{ color: cols[i-1], transform: 'rotate(-90deg)' }} />
+                        </div>
+                      )}
+                      <div className="rounded-lg px-2 py-2" style={{ border: `1px solid ${cols[i]}44`, background: `${cols[i]}11` }}>
+                        <div className="text-xs font-bold" style={{ color: cols[i] }}>Scenario {s}</div>
+                        {scenarioNames?.strategy && <div className="text-white/50 text-xs mt-0.5">{scenarioNames.strategy}</div>}
                       </div>
                     </div>
                   )
                 })}
+              </div>
+
+              {/* Trigger groups */}
+              {(['a_to_b', 'b_to_c', 'c_to_d'] as const).map((group) => {
+                const groupTriggers = triggers[group]
+                if (!groupTriggers || !Array.isArray(groupTriggers) || groupTriggers.length === 0) return null
+                const labels: Record<string, string> = { a_to_b: 'A → B', b_to_c: 'B → C', c_to_d: 'C → D' }
+                const active = groupTriggers.filter((t: { active?: boolean }) => t.active !== false)
+                if (!active.length) return null
+                return (
+                  <div key={group} className="nsp-card rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertTriangle className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                      <span className="text-white/70 text-sm font-medium">Escalation Triggers: {labels[group]}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {active.map((t: { text?: string; label?: string; notes?: string }, i: number) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <div className="text-white/80 text-sm">{t.text || t.label}</div>
+                            {t.notes && <div className="text-white/40 text-xs mt-0.5">{t.notes}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+
+              {/* Legacy trigger_data fallback */}
+              {!triggers.a_to_b && triggers.trigger_data && (
+                <div className="nsp-card rounded-xl p-4">
+                  <div className="space-y-2">
+                    {Object.entries(triggers.trigger_data as Record<string, unknown>)
+                      .filter(([, v]) => (v as Record<string, unknown>).active)
+                      .map(([k, v]) => {
+                        const entry = v as { notes?: string }
+                        const texts = ['They are using delaying tactics','Discussions escalated to a higher level','They have dis-empowered themselves','They have presented no alternatives','They have only presented win/lose proposals','They have introduced time related deadlines','They have formally withdrawn from discussions','They have rejected ongoing dialogue','They are demonstrating indifference/intransigence','They have introduced threats or deadlines']
+                        const idx = parseInt(k.replace('t', '')) - 1
+                        return (
+                          <div key={k} className="flex items-start gap-3">
+                            <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <div className="text-white/80 text-sm">{texts[idx]}</div>
+                              {entry.notes && <div className="text-white/40 text-xs mt-1">{entry.notes}</div>}
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </div>
+                </div>
+              )}
             </div>
           </ReportSection>
         )}
