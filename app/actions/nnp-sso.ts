@@ -13,7 +13,7 @@
 
 const NNP_SUPABASE_URL = process.env.NNP_SUPABASE_URL || 'https://zsoabbtcfgilyzkzegbw.supabase.co'
 const NNP_SERVICE_ROLE_KEY = process.env.NNP_SERVICE_ROLE_KEY || ''
-const NNP_SIGNUP_URL = 'https://www.negotiation-navigator.pro/auth/signup'
+const NNP_SIGNUP_URL = 'https://www.negotiation-navigator.pro/login'
 const NNP_BASE_URL = 'https://www.negotiation-navigator.pro'
 
 export async function getNNPLink(email: string): Promise<{ url: string; isMagicLink: boolean }> {
