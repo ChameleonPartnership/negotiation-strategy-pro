@@ -28,13 +28,15 @@ export default async function StrategyHubPage({
   if (!project) notFound()
 
   // Check which steps have data
-  const [scoping, orientation, approach, power, strategy, scenarios] = await Promise.all([
+  const [scoping, orientation, approach, power, strategy, scenarios, ppa, triggers] = await Promise.all([
     supabase.from('scoping').select('id').eq('project_id', id).maybeSingle(),
     supabase.from('orientation').select('id,result').eq('project_id', id).maybeSingle(),
     supabase.from('approach').select('id,result').eq('project_id', id).maybeSingle(),
     supabase.from('power_state').select('id,power_state').eq('project_id', id).maybeSingle(),
     supabase.from('strategy_selection').select('id,final_strategy').eq('project_id', id).maybeSingle(),
     supabase.from('scenarios').select('id').eq('project_id', id),
+    supabase.from('ppa').select('id').limit(1),
+    supabase.from('triggers').select('id').eq('project_id', id).maybeSingle(),
   ])
 
   const completedSteps: number[] = []
@@ -45,6 +47,8 @@ export default async function StrategyHubPage({
   if (power.data?.power_state) completedSteps.push(5)
   if (strategy.data?.final_strategy) completedSteps.push(6)
   if ((scenarios.data?.length ?? 0) > 0) completedSteps.push(7)
+  if ((ppa.data?.length ?? 0) > 0) completedSteps.push(8)
+  if (triggers.data) completedSteps.push(9)
 
   const overallPct = Math.round((completedSteps.length / WIZARD_STEPS.length) * 100)
 

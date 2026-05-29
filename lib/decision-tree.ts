@@ -302,6 +302,59 @@ export const STRATEGY_DESCRIPTIONS: Record<StrategyName, string> = {
 }
 
 // ─────────────────────────────────────────────
+// STRATEGY OVERRIDE WARNING
+// ─────────────────────────────────────────────
+
+const STRATEGY_HIERARCHY: StrategyName[] = [
+  'Capitulate', 'Compromise', 'Create', 'Develop', 'Defend', 'Prohibit', 'Control', 'Strike', 'Terminate',
+]
+
+export function isStrategyTooAggressive(
+  chosenStrategy: StrategyName,
+  powerState: PowerStateName
+): boolean {
+  const restrictedByPower: Record<PowerStateName, StrategyName[]> = {
+    recessive: ['Control', 'Strike', 'Terminate'],
+    passive: ['Strike', 'Terminate'],
+    yielding: ['Terminate'],
+    static: ['Strike', 'Terminate'],
+    assertive: ['Terminate'],
+    active: [],
+    dominant: [],
+  }
+  return (restrictedByPower[powerState] || []).includes(chosenStrategy)
+}
+
+// ─────────────────────────────────────────────
+// SCENARIO GENERATION (Step 7)
+// ─────────────────────────────────────────────
+
+export function getScenarioStrategies(
+  finalStrategy: StrategyName
+): [StrategyName, StrategyName, StrategyName, StrategyName] {
+  const idx = STRATEGY_HIERARCHY.indexOf(finalStrategy)
+  const a = finalStrategy
+  const b = STRATEGY_HIERARCHY[Math.max(0, idx - 2)]
+  const c = STRATEGY_HIERARCHY[Math.max(0, idx - 4)]
+  const d: StrategyName = 'Capitulate'
+  return [a, b, c, d]
+}
+
+export const SCENARIO_PHASE_NAMES: Record<'A' | 'B' | 'C' | 'D', string[]> = {
+  A: ['Pre-condition', 'Delivery', 'Manage', 'Acknowledge', 'Conclude'],
+  B: ['Align', 'Propose', 'Re-package', 'Conclude', 'Follow Through'],
+  C: ['Position', 'Warn', 'Manage', 'Conclude', 'Repair'],
+  D: ['Notice', 'Implement', 'Manage', 'Conclude', 'Exit'],
+}
+
+export const SCENARIO_LABELS: Record<'A' | 'B' | 'C' | 'D', string> = {
+  A: 'Scenario A — Primary',
+  B: 'Scenario B — Defensive Fallback',
+  C: 'Scenario C — Further Escalation Down',
+  D: 'Scenario D — Exit',
+}
+
+// ─────────────────────────────────────────────
 // STEP 8: ACTION PLANNER GUIDANCE
 // ─────────────────────────────────────────────
 
@@ -376,6 +429,37 @@ export const ACTION_PLANNER_GUIDANCE: Record<
 }
 
 // ─────────────────────────────────────────────
+// STANDARD TRIGGERS (Step 9)
+// ─────────────────────────────────────────────
+
+export const STANDARD_TRIGGERS: Record<'A_to_B' | 'B_to_C' | 'C_to_D', string[]> = {
+  A_to_B: [
+    '2 weeks elapsed without meaningful response',
+    'Pro-active rejection received',
+    'No SEGs (Significant Engagement Gestures) observed',
+    'They are using delaying tactics',
+    'Discussions escalated to a higher level without progress',
+    'They have presented no alternatives',
+  ],
+  B_to_C: [
+    '4 weeks elapsed without substantive movement',
+    'Discussions escalated to board level',
+    'Written rejection or access denied',
+    'They have dis-empowered their negotiator',
+    'They have only presented win/lose proposals',
+    'They are demonstrating indifference/intransigence',
+  ],
+  C_to_D: [
+    '6 weeks elapsed without resolution',
+    'Counter threat received',
+    'BATNA activated / over-order of volume',
+    'They have formally withdrawn from discussions',
+    'They have introduced credible threats or deadlines',
+    'Relationship irreparably compromised',
+  ],
+}
+
+// ─────────────────────────────────────────────
 // PROGRESS CALCULATION
 // ─────────────────────────────────────────────
 
@@ -385,11 +469,10 @@ export const WIZARD_STEPS = [
   { key: 'orientation', label: 'Orientation', path: 'orientation', step: 3 },
   { key: 'approach', label: 'Approach', path: 'approach', step: 4 },
   { key: 'power', label: 'Power State', path: 'power', step: 5 },
-  { key: 'strategy', label: 'Strategy', path: 'strategy', step: 6 },
-  { key: 'phases', label: 'Phase Planner', path: 'phases', step: 7 },
-  { key: 'actions', label: 'Action Planners', path: 'actions', step: 8 },
-  { key: 'ppa', label: 'PPA', path: 'ppa', step: 9 },
-  { key: 'triggers', label: 'Triggers', path: 'triggers', step: 10 },
+  { key: 'strategy', label: 'Strategy Selection', path: 'strategy', step: 6 },
+  { key: 'scenarios', label: 'Scenario Planning', path: 'scenarios', step: 7 },
+  { key: 'ppa', label: 'PPA', path: 'ppa', step: 8 },
+  { key: 'triggers', label: 'Triggers & Escalation', path: 'triggers', step: 9 },
 ] as const
 
 export type WizardStepKey = (typeof WIZARD_STEPS)[number]['key']
